@@ -1,5 +1,9 @@
 import React, { useState, useRef } from 'react';
 import './App.css';
+import {readFragmentsFromFile} from './utils/readFragmentsFromFile';
+import {mergeFragments} from './utils/mergeFragments.js';
+import {findLongestChain} from './utils/findLongestChain.js';
+
 
 function App() {
     const [fileContent, setFileContent] = useState('');
@@ -14,9 +18,7 @@ function App() {
 
     const fileInputRef = useRef(null);
 
-    const readFragmentsFromFile = (fileContent) => {
-        return fileContent.split('\n').map((line) => line.trim()).filter((line) => !isNaN(line) && line !== '');
-    };
+
 
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
@@ -60,58 +62,7 @@ function App() {
 
     };
 
-    const findLongestChain = (fragments) => {
-        function findPath(fragment) {
-            const visited = new Set();
-            const stack = [fragment];
-            const path = [fragment];
 
-            while (stack.length > 0) {
-                const currentFragment = stack.pop();
-                visited.add(currentFragment);
-                const lastTwo = currentFragment.slice(-2);
-                const nextFragments = fragments.filter(fragment =>
-                    fragment !== currentFragment && fragment.startsWith(lastTwo)
-                );
-
-                for (const nextFragment of nextFragments) {
-                    if (!visited.has(nextFragment)) {
-                        stack.push(nextFragment);
-                        path.push(nextFragment);
-                    }
-                }
-            }
-            return path;
-        }
-
-        let longestOverall = [];
-        const totalFragments = fragments.length;
-
-        for (const startFragment of fragments) {
-            const path = findPath(startFragment);
-            if (path.length > longestOverall.length) {
-                longestOverall = path;}
-        }
-
-        return longestOverall;
-    };
-
-    const mergeFragments = (chain) => {
-        if (!chain.length) return '';
-
-        let result = chain[0];
-
-        for (let i = 1; i < chain.length; i++) {
-            const current = chain[i];
-            const previousEnd = result.slice(-2);
-
-            if (current.startsWith(previousEnd)) {
-                result += current.slice(2);
-            }
-        }
-
-        return result;
-    };
 
     const reset = () => {
         setFileName('');
